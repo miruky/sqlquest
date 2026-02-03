@@ -3,6 +3,14 @@ import type { QueryResult, QuestEngine } from './lib/engine';
 import { judgeQuest } from './lib/judge';
 import { questById, quests, stages, type Quest } from './lib/quests';
 import { store } from './lib/storage';
+import {
+  THEME_STORAGE_KEY,
+  choiceLabel,
+  nextChoice,
+  parseChoice,
+  resolveTheme,
+  type ThemeChoice,
+} from './lib/theme';
 
 const PROGRESS_KEY = 'sqlquest:cleared';
 const DRAFT_PREFIX = 'sqlquest:draft:';
@@ -26,6 +34,33 @@ const LOGO = `
   <path d="M50 8 L62 12 L50 17 Z" class="logo-flag"/>
 </svg>
 `;
+
+const THEME_ICON =
+  '<svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></svg>';
+
+/** テーマ(自動 / ライト / ダーク)の切替。選択は保存し、自動時はOSに追従する。 */
+function setupTheme(root: HTMLElement): void {
+  const btn = root.querySelector('#theme-toggle') as HTMLButtonElement | null;
+  const labelEl = root.querySelector('#theme-label') as HTMLElement | null;
+  if (!btn || !labelEl) return;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  let choice: ThemeChoice = parseChoice(store.getItem(THEME_STORAGE_KEY));
+  const apply = (): void => {
+    document.documentElement.dataset.theme = resolveTheme(choice, media.matches);
+    labelEl.textContent = choiceLabel(choice);
+    btn.dataset.choice = choice;
+    btn.setAttribute('aria-label', `テーマ: ${choiceLabel(choice)}。クリックで切り替え`);
+  };
+  btn.addEventListener('click', () => {
+    choice = nextChoice(choice);
+    store.setItem(THEME_STORAGE_KEY, choice);
+    apply();
+  });
+  media.addEventListener('change', () => {
+    if (choice === 'system') apply();
+  });
+  apply();
+}
 
 function renderTable(result: QueryResult, caption: string): HTMLElement {
   const wrapper = document.createElement('figure');
@@ -76,12 +111,18 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
       <header class="masthead">
         ${LOGO}
         <div class="masthead-text">
+          <p class="kicker">SQL Quest</p>
           <h1>sqlquest</h1>
-          <p>ブラウザ内のSQLiteに本物のクエリを書いて、商店街のデータから答えを探す</p>
+          <p class="lede">ブラウザ内のSQLiteに本物のクエリを書いて、商店街のデータから答えを探す</p>
         </div>
-        <div class="progress" role="status">
-          <span class="progress-label"></span>
-          <div class="progress-track" role="presentation"><div class="progress-fill"></div></div>
+        <div class="masthead-aside">
+          <button type="button" id="theme-toggle" class="theme-toggle">
+            ${THEME_ICON}<span id="theme-label" class="theme-label">自動</span>
+          </button>
+          <div class="progress" role="status">
+            <span class="progress-label"></span>
+            <div class="progress-track" role="presentation"><div class="progress-fill"></div></div>
+          </div>
         </div>
       </header>
       <div class="layout">
@@ -311,6 +352,7 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
     }
   });
 
+  setupTheme(root);
   renderProgress();
   renderSchema();
   select(current);
