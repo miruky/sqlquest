@@ -80,6 +80,49 @@ describe('mountApp', () => {
   });
 });
 
+describe('クエストの前後移動とテーマ', () => {
+  it('次へ/前へで一覧順に移動し、端では無効になる', () => {
+    const root = mount();
+    const prev = root.querySelector('button[data-act="prev"]') as HTMLButtonElement;
+    const next = root.querySelector('button[data-act="next"]') as HTMLButtonElement;
+    expect(prev.disabled).toBe(true);
+    expect(next.disabled).toBe(false);
+    next.click();
+    expect(root.querySelector('.quest-title')?.textContent).toBe(quests[1]?.title);
+    prev.click();
+    expect(root.querySelector('.quest-title')?.textContent).toBe(quests[0]?.title);
+  });
+
+  it('最後のクエストでは次へが無効になる', () => {
+    const root = mount();
+    const last = quests[quests.length - 1] as (typeof quests)[number];
+    (root.querySelector(`.quest-list button[data-id="${last.id}"]`) as HTMLButtonElement).click();
+    expect((root.querySelector('button[data-act="next"]') as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it('合格すると結果に「次のクエストへ」が出る', () => {
+    const root = mount();
+    const first = quests[0] as (typeof quests)[number];
+    editorOf(root).value = first.solution;
+    clickAction(root, 'run');
+    expect(root.querySelector('.verdict-next')).not.toBeNull();
+  });
+
+  it('テーマトグルは自動→ライト→ダークと巡回し、html要素へ反映する', () => {
+    const root = mount();
+    const toggle = root.querySelector('#theme-toggle') as HTMLButtonElement;
+    expect(toggle.dataset.choice).toBe('system');
+    toggle.click();
+    expect(toggle.dataset.choice).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+    toggle.click();
+    expect(toggle.dataset.choice).toBe('dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+});
+
 describe('判定フロー', () => {
   it('模範解答を実行すると合格し、進捗が保存される', () => {
     const root = mount();
