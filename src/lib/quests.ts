@@ -57,6 +57,16 @@ export const quests: Quest[] = [
     solution: `SELECT name, price FROM products ORDER BY price DESC LIMIT 5;`,
   },
   {
+    id: 'cheapest-3',
+    stage: '第2章 並べ替えと件数',
+    title: '特売の三品',
+    question:
+      '価格の安い順に商品を並べ、上位3件の name と price を取り出してください。この問題は並び順も採点されます。',
+    ordered: true,
+    hint: 'ORDER BY price ASC で昇順に並べ、LIMIT 3 で件数を絞ります。',
+    solution: `SELECT name, price FROM products ORDER BY price ASC LIMIT 3;`,
+  },
+  {
     id: 'distinct-categories',
     stage: '第2章 並べ替えと件数',
     title: '商店街の顔ぶれ',
@@ -83,6 +93,15 @@ export const quests: Quest[] = [
     ordered: false,
     hint: 'GROUP BY shop_id でグループ化し、COUNT(*) で数えます。',
     solution: `SELECT shop_id, COUNT(*) FROM products GROUP BY shop_id;`,
+  },
+  {
+    id: 'stock-by-shop',
+    stage: '第3章 集計',
+    title: '店ごとの在庫数',
+    question: '店(shop_id)ごとに、在庫(stock)の合計を出してください。shop_id と合計の2列です。',
+    ordered: false,
+    hint: 'GROUP BY shop_id でグループ化し、SUM(stock) で合計します。',
+    solution: `SELECT shop_id, SUM(stock) FROM products GROUP BY shop_id;`,
   },
   {
     id: 'having-avg-800',
@@ -127,6 +146,30 @@ LIMIT 3;`,
     ordered: false,
     hint: 'NOT IN (SELECT product_id FROM order_items) のようなサブクエリが使えます。',
     solution: `SELECT name FROM products WHERE id NOT IN (SELECT product_id FROM order_items);`,
+  },
+  {
+    id: 'frequent-customers',
+    stage: '第4章 テーブルの結合',
+    title: '商店街の常連',
+    question:
+      'これまでに3回以上注文した顧客の名前(name)を挙げてください。orders と customers の結合が必要です。',
+    ordered: false,
+    hint: 'customer_id でグループ化し、HAVING COUNT(*) >= 3 で絞り込みます。名前はcustomersから取ります。',
+    solution: `SELECT customers.name
+FROM orders
+JOIN customers ON orders.customer_id = customers.id
+GROUP BY customers.id
+HAVING COUNT(*) >= 3;`,
+  },
+  {
+    id: 'above-average',
+    stage: '第5章 ひとひねり',
+    title: '平均より高い品',
+    question:
+      '全商品の平均価格より高い商品の name と price を取り出してください。平均はサブクエリで求めます。',
+    ordered: false,
+    hint: 'WHERE price > (SELECT AVG(price) FROM products) のように、サブクエリの結果と比べます。',
+    solution: `SELECT name, price FROM products WHERE price > (SELECT AVG(price) FROM products);`,
   },
   {
     id: 'district-stats',
