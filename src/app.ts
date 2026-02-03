@@ -131,6 +131,10 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
           <p class="stage-label"></p>
           <header class="quest-head">
             <h2 class="quest-title"></h2>
+            <div class="quest-nav">
+              <button type="button" class="nav-btn" data-act="prev" aria-label="前のクエスト">‹</button>
+              <button type="button" class="nav-btn" data-act="next" aria-label="次のクエスト">›</button>
+            </div>
           </header>
           <p class="quest-question"></p>
           <section class="editor-card">
@@ -169,6 +173,8 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
   const schemaList = root.querySelector('.schema-list') as HTMLElement;
   const progressLabel = root.querySelector('.progress-label') as HTMLElement;
   const progressFill = root.querySelector('.progress-fill') as HTMLElement;
+  const prevButton = root.querySelector('button[data-act="prev"]') as HTMLButtonElement;
+  const nextButton = root.querySelector('button[data-act="next"]') as HTMLButtonElement;
 
   function renderProgress(): void {
     const cleared = quests.filter((quest) => progress[quest.id]).length;
@@ -242,7 +248,16 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
     editor.value = store.getItem(DRAFT_PREFIX + quest.id) ?? '';
     hintBox.hidden = true;
     resultEl.replaceChildren();
+    const index = quests.indexOf(quest);
+    prevButton.disabled = index <= 0;
+    nextButton.disabled = index >= quests.length - 1;
     renderList();
+  }
+
+  // 一覧の並び順で前後のクエストへ移動する
+  function navigate(offset: number): void {
+    const next = quests[quests.indexOf(current) + offset];
+    if (next) select(next);
   }
 
   function run(): void {
@@ -281,6 +296,14 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
         renderProgress();
         renderList();
       }
+      if (quests.indexOf(current) < quests.length - 1) {
+        const next = document.createElement('button');
+        next.type = 'button';
+        next.className = 'verdict-next';
+        next.dataset.act = 'next';
+        next.textContent = '次のクエストへ';
+        panel.append(next);
+      }
     }
     resultEl.append(panel);
   }
@@ -296,6 +319,8 @@ export function mountApp(root: HTMLElement, engine: QuestEngine): void {
     const action = (target.closest('button[data-act]') as HTMLElement | null)?.dataset.act;
     if (!action) return;
     if (action === 'run') run();
+    if (action === 'prev') navigate(-1);
+    if (action === 'next') navigate(1);
     if (action === 'reset') {
       store.removeItem(DRAFT_PREFIX + current.id);
       editor.value = '';

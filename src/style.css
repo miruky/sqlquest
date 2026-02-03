@@ -324,8 +324,57 @@ body {
   letter-spacing: 0.05em;
 }
 
+.quest-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .quest-head h2 {
   font-size: 1.25rem;
+}
+
+/* 前後のクエストへの移動。隣接した2つのまとまり */
+.quest-nav {
+  margin-left: auto;
+  display: inline-flex;
+}
+
+.nav-btn {
+  font-family: var(--mono);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 5px 13px;
+  color: var(--muted);
+}
+
+.nav-btn:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.nav-btn:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.nav-btn:disabled:hover {
+  border-color: var(--border);
+  transform: none;
+}
+
+.verdict-next {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--pass);
+  border-color: var(--pass);
+  background: none;
 }
 
 .quest-question {
