@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="sqlquestのロゴ">
+  <title>sqlquest</title>
+  <ellipse cx="28" cy="16" rx="20" ry="8" fill="#2456a6"/>
+  <path d="M8 16 V44 a20 8 0 0 0 40 0 V16" fill="none" stroke="#37434b" stroke-width="3"/>
+  <path d="M8 30 a20 8 0 0 0 40 0" fill="none" stroke="#37434b" stroke-width="3"/>
+  <path d="M50 8 V30" stroke="#37434b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M50 8 L62 12 L50 17 Z" fill="#2456a6"/>
+</svg>
